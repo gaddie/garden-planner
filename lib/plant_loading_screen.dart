@@ -11,6 +11,9 @@ const plant_apiKey = "OiHit2-fRM0LQcvuX_9IQWDN0LrX9gdmdfoIROyTJpY";
 var plantName = userInput;
 
 class PlantLoadingScreen extends StatefulWidget {
+  var plantInfo;
+
+  PlantLoadingScreen({required this.plantInfo});
   @override
   _PlantLoadingScreenState createState() => _PlantLoadingScreenState();
 }
@@ -21,12 +24,14 @@ class _PlantLoadingScreenState extends State<PlantLoadingScreen> {
   @override
   void initState() {
     super.initState();
-    getPlantId(); // Call getPlantId function in initState
+    getPlantId(widget.plantInfo);
+
+    // Call getPlantId function in initState
   }
 
-  Future getPlantId() async {
+  Future getPlantId(dynamic plantInfo) async {
     var url =
-        "https://trefle.io/api/v1/plants/search?token=$plant_apiKey&q=$plantName";
+        "https://trefle.io/api/v1/plants/search?token=$plant_apiKey&q=$plantInfo";
 
     var uri = Uri.parse(url);
     http.Response response = await http.get(uri);
@@ -45,6 +50,7 @@ class _PlantLoadingScreenState extends State<PlantLoadingScreen> {
     http.Response response = await http.get(uri);
     String data = response.body;
     var decodeData = jsonDecode(data);
+
     Navigator.push(
         context,
         MaterialPageRoute(

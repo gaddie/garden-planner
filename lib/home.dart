@@ -179,12 +179,15 @@ class _HomeState extends State<Home> {
                         padding: EdgeInsets.only(
                             top: 10.0, right: 10.0, left: 10.0, bottom: 20.0),
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        PlantLoadingScreen()));
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PlantLoadingScreen(
+                                  plantInfo: userInput,
+                                ),
+                              ),
+                            );
                           },
                           style: ElevatedButton.styleFrom(
                             elevation:

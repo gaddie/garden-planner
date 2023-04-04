@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'home.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'constants.dart';
+import 'dialog-box.dart';
 
 const plant_apiKey = "OiHit2-fRM0LQcvuX_9IQWDN0LrX9gdmdfoIROyTJpY";
 
@@ -35,9 +36,16 @@ class _PlantLoadingScreenState extends State<PlantLoadingScreen> {
 
     var uri = Uri.parse(url);
     http.Response response = await http.get(uri);
-    String data = response.body;
-    var decodeData = jsonDecode(data);
-    plantId = decodeData['data'][0]['id'];
+
+    if (response.statusCode == 200) {
+      try {
+        String data = response.body;
+        var decodeData = jsonDecode(data);
+        plantId = decodeData['data'][0]['id'];
+      } catch (e) {
+        print(e);
+      }
+    }
 
     // Call getPlantDescription function after getting the plant ID
     getPlantDescription();
@@ -48,15 +56,30 @@ class _PlantLoadingScreenState extends State<PlantLoadingScreen> {
 
     var uri = Uri.parse(url);
     http.Response response = await http.get(uri);
-    String data = response.body;
-    var decodeData = jsonDecode(data);
 
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => DescriptionScreen(
-                  plantInfo: decodeData,
-                )));
+    if (response.statusCode == 200) {
+      String data = response.body;
+      var decodeData = jsonDecode(data);
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => DescriptionScreen(
+                    plantInfo: decodeData,
+                  )));
+    } else {
+      showDialog<void>(
+        context: context,
+        builder: (BuildContext context) {
+          return DialogStyle(
+            title: "Not Found",
+            message: 'Sorry, we could not find any\n'
+                'information about the plant you are searching for. Please check the spelling and try again.\n',
+            screenPopCount: 2,
+          );
+        },
+      );
+    }
   }
 
   @override

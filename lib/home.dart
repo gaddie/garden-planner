@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'constants.dart';
 import 'info_screen.dart';
 import 'plant_loading_screen.dart';
+import 'dialog-box.dart';
 
 var userInput;
 
@@ -180,14 +181,28 @@ class _HomeState extends State<Home> {
                             top: 10.0, right: 10.0, left: 10.0, bottom: 20.0),
                         child: ElevatedButton(
                           onPressed: () async {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PlantLoadingScreen(
-                                  plantInfo: userInput,
+                            if (userInput == null || userInput.isEmpty) {
+                              showDialog<void>(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return DialogStyle(
+                                    title: "No Input",
+                                    message:
+                                        'The input field is empty please enter a plant name',
+                                    screenPopCount: 1,
+                                  );
+                                },
+                              );
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PlantLoadingScreen(
+                                    plantInfo: userInput,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
                           },
                           style: ElevatedButton.styleFrom(
                             elevation:

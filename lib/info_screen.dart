@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:garden_planner/constants.dart';
 import 'package:garden_planner/home.dart';
 import 'plant_description_list.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 class DescriptionScreen extends StatelessWidget {
   DescriptionScreen({this.plantInfo});
@@ -19,8 +20,26 @@ class DescriptionScreen extends StatelessWidget {
     nonNullKeys = nonNullKeys.sublist(0, nonNullKeys.length - 2);
     nonNullValues = nonNullValues.sublist(0, nonNullValues.length - 2);
 
-    print(nonNullKeys); // Output: [growth_form, growth_habit, growth_rate]
-    print(nonNullValues); // Output: [Single Stem, Tree, Moderate]
+    var plantImg = plantInfo['data']['image_url'];
+    var isNull = plantInfo['data']['main_species']['images']['fruit'];
+
+    if (isNull == null) {
+      print("null");
+    } else {
+      var fruitImg =
+          plantInfo['data']['main_species']['images']['fruit'][0]['image_url'];
+
+      var imgListLength =
+          plantInfo['data']['main_species']['images']['fruit'].length;
+
+      for (var i = 0; i < imgListLength; i++) {
+        print(plantInfo['data']['main_species']['images']['fruit'][i]
+            ['image_url']);
+      }
+    }
+
+    var commonAreas =
+        plantInfo['data']['main_species']['distribution']['native'];
 
     return DefaultTabController(
       initialIndex: 0,
@@ -36,10 +55,10 @@ class DescriptionScreen extends StatelessWidget {
                 text: 'Overview',
               ),
               Tab(
-                text: 'Preparation',
+                text: 'Locations',
               ),
               Tab(
-                text: 'Expectations',
+                text: 'Images',
               ),
             ],
           ),
@@ -70,26 +89,78 @@ class DescriptionScreen extends StatelessWidget {
                     ),
                   ],
                 )),
-            SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  PreparationCard(
-                    title: 'sowing',
-                    description: 'plant description',
-                    spacing: 'Row spacing',
-                    value: 20,
-                  ),
-                ],
-              ),
-            ),
             Container(
                 color: kLightGreen,
                 child: Column(
                   children: [
-                    PlantDescriptionList(
-                      name: userInput,
-                      value: "20",
+                    for (var i = 0; i < commonAreas.length; i++)
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(
+                            '◉' + ' ' + commonAreas[i],
+                            style: TextStyle(
+                              color: kDarkGreen,
+                              fontSize: 20.0,
+                            ),
+                          ),
+                        ],
+                      ),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    FloatingActionButton.extended(
+                      onPressed: () {
+                        int count = 0;
+                        Navigator.of(context).popUntil((_) => count++ >= 2);
+                      },
+                      backgroundColor: kDarkGreen,
+                      foregroundColor: kLightGreen,
+                      label: Text('Back'),
+                      icon: Icon(Icons.arrow_back),
+                    ),
+                  ],
+                )),
+            Container(
+                color: kLightGreen,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    CarouselSlider(
+                      options: CarouselOptions(
+                        height: 200.0,
+                        autoPlay: true,
+                        autoPlayCurve: Curves.fastOutSlowIn,
+                        enlargeCenterPage: true,
+                        enlargeFactor: 0.3,
+                      ),
+                      items: [1, 2, 3, 4, 5].map((i) {
+                        return Builder(
+                          builder: (BuildContext context) {
+                            return ClipRRect(
+                              borderRadius: BorderRadius.circular(20.0),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width,
+                                margin: EdgeInsets.symmetric(horizontal: 0.2),
+                                child: isNull == null
+                                    ? Image.network(
+                                        'https://admin.azbigmedia.com/wp-content/uploads/2021/08/California-farms.jpg',
+                                        fit: BoxFit.fill,
+                                      )
+                                    : Image.network(
+                                        plantInfo['data']['main_species']
+                                                ['images']['leaf'][i - 1]
+                                            ['image_url'],
+                                        fit: BoxFit.fill,
+                                      ),
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
                     ),
                     SizedBox(
                       height: 20.0,
@@ -113,74 +184,7 @@ class DescriptionScreen extends StatelessWidget {
   }
 }
 
-class PreparationCard extends StatelessWidget {
-  PreparationCard(
-      {required this.title,
-      required this.description,
-      required this.spacing,
-      required this.value});
-
-  String title;
-  String description;
-  String spacing;
-  int value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Padding(
-        padding: EdgeInsets.only(top: 10.0, right: 10.0, left: 10.0),
-        child: Card(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.0),
-          ),
-          elevation: 10.0,
-          color: kDarkGreen,
-          child: Padding(
-            padding: EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  spacing,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                  ),
-                ),
-                Text('$value'),
-                SizedBox(
-                  height: 20.0,
-                ),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                  ),
-                ),
-                Text(description),
-                SizedBox(
-                  height: 20.0,
-                ),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: FloatingActionButton.extended(
-                      onPressed: () {
-                        int count = 0;
-                        Navigator.of(context).popUntil((_) => count++ >= 2);
-                      },
-                      backgroundColor: kLightGreen,
-                      foregroundColor: kDarkGreen,
-                      label: Text('Back'),
-                      icon: Icon(Icons.arrow_back),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
+// for (var i = 0; i < commonAreas.length; i++)
+// AreasGrownCard(
+// name: '◉' + ' ' + commonAreas[i],
+// ),
